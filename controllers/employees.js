@@ -100,7 +100,7 @@ const getRetentionRate = async (req, res) => {
 
         const { start_date, end_date } = req.query;
 
-        if (!start_date || !end_date || !department) {
+        if (!start_date || !end_date) {
             return sendResponseMsg(res, "invalid query parameters", false, 400)
         }
         const data = await employeeService.getRetentionRate(start_date, end_date)
