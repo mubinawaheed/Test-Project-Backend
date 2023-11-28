@@ -71,20 +71,22 @@ const getRetentionRate = async (start_date = '', end_date) => {
     const departments = Array.from(new Set(data.map(obj => obj['position'])));
 
     const endMoment = moment(end_date);
+    const startMoment = moment(start_date);
+
     const retentionRates = []
     for (let i = 0; i < departments.length; i++) {
         const element = data.filter((d => d.position == departments[i]))
 
-
         const employeesAtStart = element.filter(employee => moment(employee.joiningDate).isSameOrBefore(endMoment));
-        const employeesAtEnd = element.filter(employee => moment(employee.end_date || endMoment).isSameOrAfter(endMoment));
-        const retentionRate = employeesAtStart.length > 0 ?
-            ((employeesAtEnd.length - (employeesInPosition.length - employeesAtEnd.length)) / employeesAtStart.length) * 100 :
-            0; const obj = {
-                department: departments[i],
-                retentionRate: retentionRate
-            }
-        console.log(obj)
+        const employeesAtEnd = element.filter(employee => moment(employee.joiningDate).isSameOrBefore(endMoment) && moment(employee.joiningDate).isSameOrAfter(startMoment));
+        const retentionRate = employeesAtStart.length > 0
+        ? Math.ceil((employeesAtEnd.length / employeesAtStart.length) * 100)
+        : 0;
+
+        const obj = {
+            department: departments[i],
+            retentionRate: retentionRate,
+        };
         retentionRates.push(obj)
     }
     return retentionRates
