@@ -94,10 +94,30 @@ const getTopEarners = async (req, res) => {
         console.error('Error occured:', err);
     }
 }
+
+const getRetentionRate = async (req, res) => {
+    try {
+
+        const { start_date, end_date } = req.query;
+
+        if (!start_date || !end_date || !department) {
+            return sendResponseMsg(res, "invalid query parameters", false, 400)
+        }
+        const data = await employeeService.getRetentionRate(start_date, end_date)
+        if (!data || data.length == 0) {
+            return sendResponseMsg(res, "No data found.", false, 404)
+        }
+        return sendResponse(res, 200, { success: true, data: data })
+        } catch (err) {
+            console.error('Error occured:', err);
+        }
+    }
+
 module.exports = {
-    getData,
-    getAverageSalaryByPosition,
-    getEmployeesByExperience,
-    getTopEarners,
-    getEmployeesBySalary
-}
+        getData,
+        getAverageSalaryByPosition,
+        getEmployeesByExperience,
+        getTopEarners,
+        getEmployeesBySalary,
+        getRetentionRate
+    }

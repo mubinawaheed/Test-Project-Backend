@@ -44,26 +44,50 @@ const AverageSalaryByPosition = async () => {
     return averageSalaries
 }
 
-const getEmployeesByExperience = async (low=0, high) => {
+const getEmployeesByExperience = async (low = 0, high) => {
     const data = await loadData()
     const currentDate = moment(new Date())
-    const filteredArray=[]
+    const filteredArray = []
 
     for (let i = 0; i < data.length; i++) {
         const yearsOfExperience = currentDate.diff(moment(data[i].joiningDate), 'years')
         data[i].yearsOfExperience = yearsOfExperience
-    
-        if(yearsOfExperience >= low && yearsOfExperience <= high){
+
+        if (yearsOfExperience >= low && yearsOfExperience <= high) {
             filteredArray.push(data[i])
         }
     }
     return filteredArray
 }
 
-const getEmployeeBySalaryRange= async(low, high)=>{
+const getEmployeeBySalaryRange = async (low, high) => {
     const data = await loadData()
-    const filteredData  = data.filter((user => (user.salary>=low && user.salary<=high)))
+    const filteredData = data.filter((user => (user.salary >= low && user.salary <= high)))
     return filteredData
+}
+
+const getRetentionRate = async (start_date = '', end_date) => {
+    const data = await loadData()
+    const departments = Array.from(new Set(data.map(obj => obj['position'])));
+
+    const endMoment = moment(end_date);
+    const retentionRates = []
+    for (let i = 0; i < departments.length; i++) {
+        const element = data.filter((d => d.position == departments[i]))
+
+
+        const employeesAtStart = element.filter(employee => moment(employee.joiningDate).isSameOrBefore(endMoment));
+        const employeesAtEnd = element.filter(employee => moment(employee.end_date || endMoment).isSameOrAfter(endMoment));
+        const retentionRate = employeesAtStart.length > 0 ?
+            ((employeesAtEnd.length - (employeesInPosition.length - employeesAtEnd.length)) / employeesAtStart.length) * 100 :
+            0; const obj = {
+                department: departments[i],
+                retentionRate: retentionRate
+            }
+        console.log(obj)
+        retentionRates.push(obj)
+    }
+    return retentionRates
 }
 
 module.exports = {
@@ -72,5 +96,6 @@ module.exports = {
     getTopEarners,
     AverageSalaryByPosition,
     getEmployeesByExperience,
-    getEmployeeBySalaryRange
+    getEmployeeBySalaryRange,
+    getRetentionRate
 }
